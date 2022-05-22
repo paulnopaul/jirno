@@ -11,4 +11,3 @@ func main() {
 		fmt.Println("Application ended with: ", err)
 	}
 }
-

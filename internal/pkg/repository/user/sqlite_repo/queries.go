@@ -2,7 +2,7 @@ package sqlite_repo
 
 import (
 	sq "github.com/Masterminds/squirrel"
-	"jirno/internal/pkg/domain"
+	domain "jirno/internal/pkg/domain/user"
 )
 
 func buildUpdateQuery(userUpdate domain.User) (string, []interface{}, error) {

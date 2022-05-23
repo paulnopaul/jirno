@@ -3,7 +3,7 @@ package sqlite_repo
 import (
 	"database/sql"
 	"fmt"
-	"jirno/internal/pkg/domain"
+	domain "jirno/internal/pkg/domain/task"
 
 	"github.com/google/uuid"
 )
@@ -22,7 +22,7 @@ func (s sqliteTaskRepo) GetByID(id uuid.UUID) (*domain.Task, error) {
 	row := s.db.QueryRow(getByIDQuery, id.String())
 	dRes := SQLiteTask{}
 	err := row.Scan(&dRes.ID, &dRes.User, &dRes.Project,
-		&dRes.Title, &dRes.Description, &dRes.Additional,
+		&dRes.Title, &dRes.Description,
 		&dRes.IsCompleted, &dRes.CreatedDate, &dRes.CompletedDate, &dRes.DateTo)
 	if err != nil {
 		return nil, fmt.Errorf("task get by id failed: %v", err)
@@ -48,7 +48,7 @@ func (s sqliteTaskRepo) GetByFilter(filter domain.TaskFilter) ([]domain.Task, er
 	for rows.Next() {
 		rowDRes := SQLiteTask{}
 		err = rows.Scan(&rowDRes.ID, &rowDRes.User, &rowDRes.Project,
-			&rowDRes.Title, &rowDRes.Description, &rowDRes.Additional,
+			&rowDRes.Title, &rowDRes.Description,
 			&rowDRes.IsCompleted, &rowDRes.CreatedDate,
 			&rowDRes.CompletedDate, &rowDRes.DateTo)
 		if err != nil {
@@ -70,7 +70,7 @@ func (s sqliteTaskRepo) Create(task domain.Task) error {
 	}
 	_, err = s.db.Exec(createQuery,
 		dbTask.ID, dbTask.User, dbTask.Project,
-		dbTask.Title, dbTask.Description, dbTask.Additional,
+		dbTask.Title, dbTask.Description,
 		dbTask.IsCompleted, dbTask.CreatedDate,
 		dbTask.CompletedDate, dbTask.DateTo)
 	if err != nil {
@@ -80,7 +80,6 @@ func (s sqliteTaskRepo) Create(task domain.Task) error {
 }
 
 func (s sqliteTaskRepo) Update(task domain.TaskUpdate) error {
-	// TODO handle additional
 	req, data, err := buildUpdateQuery(task)
 	if err != nil {
 		return fmt.Errorf("task update (build query) failed: %v", err)

@@ -13,7 +13,6 @@ type Project struct {
 	Tasks         []uuid.UUID
 	Title         string
 	Description   string
-	Additional    map[string]string
 	IsCompleted   bool
 	CreatedDate   time.Time
 	CompletedDate *time.Time
@@ -29,7 +28,7 @@ type IProjectUsecase interface {
 	Delete(id uuid.UUID) error
 }
 
-//go:generate mockgen -destination=../repository/project/mock/mock_repo.go -package=mock jirno/internal/pkg/domain IProjectRepo
+//go:generate mockgen -destination=../../repository/project/mock/mock_repo.go -package=mock jirno/internal/pkg/domain/project IProjectRepo
 type IProjectRepo interface {
 	GetByID(id uuid.UUID) (*Project, error)
 	GetByFilter(filter ProjectFilter) ([]Project, error)

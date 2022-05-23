@@ -2,17 +2,17 @@ package sqlite_repo
 
 import (
 	sq "github.com/Masterminds/squirrel"
-	"jirno/internal/pkg/domain"
+	domain "jirno/internal/pkg/domain/task"
 )
 
 const (
-	getByIDQuery = "SELECT id, uid, pid, title, description, additional, is_completed, created_date, completed_date, date_to FROM Tasks WHERE id = ?"
-	createQuery  = "INSERT INTO Tasks(id, uid, pid, title, description, additional, is_completed, created_date, completed_date, date_to) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+	getByIDQuery = "SELECT id, uid, pid, title, description,  is_completed, created_date, completed_date, date_to FROM Tasks WHERE id = ?"
+	createQuery  = "INSERT INTO Tasks(id, uid, pid, title, description,  is_completed, created_date, completed_date, date_to) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
 )
 
 func buildGetByFilterQuery(filter SQLiteTaskFilter) (string, []interface{}, error) {
 	req := sq.Select("id", "uid", "pid",
-		"title", "description", "additional",
+		"title", "description",
 		"is_completed", "created_date", "completed_date", "date_to").
 		From("Tasks")
 	if filter.User != nil {

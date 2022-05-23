@@ -10,7 +10,6 @@ type ProjectUpdate struct {
 	Title         string
 	Description   string
 	ParentProject *uuid.UUID
-	Additional    map[string]string
 	Users         []int64
 	IsCompleted   *bool
 	CompletedDate *time.Time

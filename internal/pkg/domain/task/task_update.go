@@ -11,7 +11,6 @@ type TaskUpdate struct {
 	Project       *uuid.UUID
 	Title         string
 	Description   string
-	Additional    map[string]string
 	IsCompleted   *bool
 	CompletedDate *time.Time
 	DateTo        *time.Time

@@ -1,8 +1,7 @@
 package sqlite_repo
 
 import (
-	"encoding/json"
-	"jirno/internal/pkg/domain"
+	domain "jirno/internal/pkg/domain/task"
 	"time"
 
 	"github.com/google/uuid"
@@ -14,7 +13,6 @@ type SQLiteTask struct {
 	User          int64
 	Title         string
 	Description   string
-	Additional    string
 	IsCompleted   bool
 	CreatedDate   int64
 	CompletedDate *int64
@@ -49,12 +47,6 @@ func filterFromDomain(filter domain.TaskFilter) SQLiteTaskFilter {
 }
 
 func domainFromSQLite(src *SQLiteTask) (*domain.Task, error) {
-	resAdditional := map[string]string{}
-	err := json.Unmarshal([]byte(src.Additional), &resAdditional)
-	if err != nil {
-		return nil, err
-	}
-
 	parsedID, err := uuid.Parse(src.ID)
 	if err != nil {
 		return nil, err
@@ -86,7 +78,6 @@ func domainFromSQLite(src *SQLiteTask) (*domain.Task, error) {
 		Title:         src.Title,
 		Description:   src.Description,
 		IsCompleted:   src.IsCompleted,
-		Additional:    resAdditional,
 		CreatedDate:   resCreatedDate,
 		CompletedDate: resCompletedDate,
 		DateTo:        resDateTo,
@@ -94,11 +85,6 @@ func domainFromSQLite(src *SQLiteTask) (*domain.Task, error) {
 }
 
 func sqliteFromDomain(src domain.Task) (*SQLiteTask, error) {
-	resAdditional, err := json.Marshal(src.Additional)
-	if err != nil {
-		return nil, err
-	}
-
 	res := &SQLiteTask{
 		ID:          src.ID.String(),
 		Project:     src.Project.String(),
@@ -106,7 +92,6 @@ func sqliteFromDomain(src domain.Task) (*SQLiteTask, error) {
 		Title:       src.Title,
 		Description: src.Description,
 		IsCompleted: src.IsCompleted,
-		Additional:  string(resAdditional),
 		CreatedDate: src.CreatedDate.Unix(),
 	}
 

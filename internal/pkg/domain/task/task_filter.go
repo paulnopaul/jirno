@@ -1,8 +1,7 @@
-package domain
+package task
 
 import (
 	"github.com/google/uuid"
-	"jirno/internal/pkg/utils"
 	"time"
 )
 
@@ -13,7 +12,7 @@ type TaskFilter struct {
 	Project   *uuid.UUID
 }
 
-type SmartTaskFilter struct {
+type DeliveryTaskFilter struct {
 	Smart     string
 	User      *int64
 	StartDate *time.Time
@@ -21,7 +20,7 @@ type SmartTaskFilter struct {
 	Project   string
 }
 
-func (f SmartTaskFilter) ToDomain() (*TaskFilter, error) {
+func (f DeliveryTaskFilter) ToDomain() (*TaskFilter, error) {
 	res := &TaskFilter{}
 	if f.User != nil {
 		res.User = new(int64)
@@ -42,23 +41,5 @@ func (f SmartTaskFilter) ToDomain() (*TaskFilter, error) {
 		}
 		res.Project = &parsedID
 	}
-	res.handleSmart(f.Smart)
 	return res, nil
-}
-
-func (filter *TaskFilter) handleSmart(smart string) {
-	if smart == "" {
-		return
-	}
-
-	filter.StartDate = new(time.Time)
-	filter.EndDate = new(time.Time)
-
-	now := time.Now()
-	switch smart {
-	case "today":
-		*filter.StartDate, *filter.EndDate = utils.GetDayRange(now)
-	case "tomorrow":
-		*filter.StartDate, *filter.EndDate = utils.GetDayRange(now.AddDate(0, 0, -1))
-	}
 }

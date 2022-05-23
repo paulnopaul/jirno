@@ -1,38 +1,4 @@
-package domain
-
-import (
-	"fmt"
-	"jirno/internal/pkg/utils"
-)
-
-type Users []int64
-
-type DeliveryUser struct {
-	Name     string
-	Nickname string
-	Email    string
-	Password string
-}
-
-type DeliveryUserUpdate struct {
-	DeliveryUser
-	NewNickname string
-}
-
-func (u DeliveryUser) ToDomain() (*User, error) {
-	res := &User{}
-	res.Name = u.Name
-	res.Nickname = u.Nickname
-	res.Email = u.Email
-	if u.Password != "" {
-		pwd, err := utils.HashPassword(u.Password)
-		if err != nil {
-			return nil, fmt.Errorf("user to delivery casting failed: %v", err)
-		}
-		res.Password = pwd
-	}
-	return res, nil
-}
+package user
 
 type User struct {
 	ID       int64

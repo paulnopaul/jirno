@@ -5,18 +5,19 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
-	"jirno/internal/pkg/domain"
+	"jirno/internal/pkg/domain/task"
 	"jirno/internal/pkg/repository/task/mock"
 	"jirno/internal/pkg/utils"
+	"jirno/internal/smart_parser"
 	"testing"
 	"time"
 )
 
 type getByFilterTest struct {
 	expectedError  error
-	expectedRes    []domain.Task
-	expectedFilter domain.TaskFilter
-	filter         domain.SmartTaskFilter
+	expectedRes    []task.Task
+	expectedFilter task.TaskFilter
+	filter         task.DeliveryTaskFilter
 }
 
 var (
@@ -24,7 +25,7 @@ var (
 	todayStart, todayEnd = utils.GetDayRange(time.Now())
 	testUserID           = int64(3)
 
-	resArr = []domain.Task{
+	resArr = []task.Task{
 		{
 			Title:       "Task1",
 			Description: "Task1 description",
@@ -44,10 +45,10 @@ var (
 		{
 			expectedError: nil,
 			expectedRes:   resArr,
-			filter: domain.SmartTaskFilter{
+			filter: task.DeliveryTaskFilter{
 				Smart: "today",
 			},
-			expectedFilter: domain.TaskFilter{
+			expectedFilter: task.TaskFilter{
 				StartDate: &todayStart,
 				EndDate:   &todayEnd,
 			},
@@ -56,11 +57,11 @@ var (
 		{
 			expectedError: nil,
 			expectedRes:   resArr,
-			filter: domain.SmartTaskFilter{
+			filter: task.DeliveryTaskFilter{
 				StartDate: &todayStart,
 				EndDate:   &todayEnd,
 			},
-			expectedFilter: domain.TaskFilter{
+			expectedFilter: task.TaskFilter{
 				StartDate: &todayStart,
 				EndDate:   &todayEnd,
 			},
@@ -69,10 +70,10 @@ var (
 		{
 			expectedError: nil,
 			expectedRes:   resArr,
-			filter: domain.SmartTaskFilter{
+			filter: task.DeliveryTaskFilter{
 				User: &testUserID,
 			},
-			expectedFilter: domain.TaskFilter{
+			expectedFilter: task.TaskFilter{
 				User: &testUserID,
 			},
 		},
@@ -82,7 +83,8 @@ var (
 func TestTaskUsecase_GetByFilter(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	taskRepo := mock.NewMockITaskRepo(ctrl)
-	usecase := NewTaskUsecase(taskRepo)
+	usecase := NewTaskUsecase(taskRepo, smart_parser.NewDefaultTaskParser())
+
 	for index, testData := range getByFilterData {
 		t.Run(fmt.Sprintf("#%v", index), func(t *testing.T) {
 			taskRepo.EXPECT().GetByFilter(testData.expectedFilter).Return(testData.expectedRes, nil).Times(1)
@@ -96,17 +98,17 @@ func TestTaskUsecase_GetByFilter(t *testing.T) {
 type completeTest struct {
 	expectedError  error
 	projectID      uuid.UUID
-	expectedUpdate domain.TaskUpdate
+	expectedUpdate task.TaskUpdate
 }
 
 var (
-	completeTaskID   = uuid.New()
+	completeTaskID      = uuid.New()
 	completeIsCompleted = true
 	completeData        = []completeTest{
 		{
 			expectedError: nil,
 			projectID:     completeTaskID,
-			expectedUpdate: domain.TaskUpdate{
+			expectedUpdate: task.TaskUpdate{
 				ID:          completeTaskID,
 				IsCompleted: &completeIsCompleted,
 			}},
@@ -115,11 +117,11 @@ var (
 
 func TestTaskUsecase_Complete(t *testing.T) {
 	ctrl := gomock.NewController(t)
-	projectRepo := mock.NewMockITaskRepo(ctrl)
-	usecase := NewTaskUsecase(projectRepo)
+	taskRepo := mock.NewMockITaskRepo(ctrl)
+	usecase := NewTaskUsecase(taskRepo, smart_parser.NewDefaultTaskParser())
 	for index, testData := range completeData {
 		t.Run(fmt.Sprintf("#%v", index), func(t *testing.T) {
-			projectRepo.EXPECT().Update(testData.expectedUpdate).Return(testData.expectedError).Times(1)
+			taskRepo.EXPECT().Update(testData.expectedUpdate).Return(testData.expectedError).Times(1)
 			err := usecase.Complete(testData.projectID)
 			assert.Equal(t, testData.expectedError, err)
 		})
@@ -133,7 +135,7 @@ type deleteTest struct {
 
 var (
 	deleteTaskID = uuid.New()
-	deleteData      = []deleteTest{
+	deleteData   = []deleteTest{
 		{
 			projectID:     deleteTaskID,
 			expectedError: nil,
@@ -143,11 +145,11 @@ var (
 
 func TestTaskUsecase_Delete(t *testing.T) {
 	ctrl := gomock.NewController(t)
-	projectRepo := mock.NewMockITaskRepo(ctrl)
-	usecase := NewTaskUsecase(projectRepo)
+	taskRepo := mock.NewMockITaskRepo(ctrl)
+	usecase := NewTaskUsecase(taskRepo, smart_parser.NewDefaultTaskParser())
 	for index, testData := range deleteData {
 		t.Run(fmt.Sprintf("#%v", index), func(t *testing.T) {
-			projectRepo.EXPECT().Delete(testData.projectID).Return(testData.expectedError).Times(1)
+			taskRepo.EXPECT().Delete(testData.projectID).Return(testData.expectedError).Times(1)
 			err := usecase.Delete(testData.projectID)
 			assert.Equal(t, testData.expectedError, err)
 		})
@@ -156,11 +158,11 @@ func TestTaskUsecase_Delete(t *testing.T) {
 
 type createTest struct {
 	expectedError error
-	project       domain.Task
+	project       task.Task
 }
 
 var (
-	createTask = domain.Task{
+	createTask = task.Task{
 		Title:       "Task",
 		Description: "Task description",
 	}
@@ -174,11 +176,11 @@ var (
 
 func TestTaskUsecase_Create(t *testing.T) {
 	ctrl := gomock.NewController(t)
-	projectRepo := mock.NewMockITaskRepo(ctrl)
-	usecase := NewTaskUsecase(projectRepo)
+	taskRepo := mock.NewMockITaskRepo(ctrl)
+	usecase := NewTaskUsecase(taskRepo, smart_parser.NewDefaultTaskParser())
 	for index, testData := range createData {
 		t.Run(fmt.Sprintf("#%v", index), func(t *testing.T) {
-			projectRepo.EXPECT().Create(gomock.Any()).Return(testData.expectedError).Times(1)
+			taskRepo.EXPECT().Create(gomock.Any()).Return(testData.expectedError).Times(1)
 			_, err := usecase.Create(testData.project)
 			assert.Equal(t, err, testData.expectedError)
 		})

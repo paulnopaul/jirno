@@ -4,20 +4,20 @@ import (
 	"fmt"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
-	"jirno/internal/pkg/domain"
+	"jirno/internal/pkg/domain/user"
 	"jirno/internal/pkg/repository/user/mock"
 	"testing"
 )
 
 type signupTest struct {
-	deliveryUser  domain.DeliveryUser
+	deliveryUser  user.DeliveryUser
 	expectedError error
 	id            int64
-	user          domain.User
+	user          user.User
 }
 
 var (
-	resUser = domain.DeliveryUser{
+	resUser = user.DeliveryUser{
 		Name:     "name",
 		Nickname: "nickname",
 		Password: "password",
@@ -45,26 +45,26 @@ func TestUserUsecase_Signup(t *testing.T) {
 }
 
 type updateTest struct {
-	deliveryUserUpdate domain.DeliveryUserUpdate
-	user               domain.User
-	userToUpdate       domain.User
+	deliveryUserUpdate user.DeliveryUserUpdate
+	user               user.User
+	userToUpdate       user.User
 	expectedError      error
 }
 
 var (
-	updateDeliveryUser = domain.DeliveryUserUpdate{
+	updateDeliveryUser = user.DeliveryUserUpdate{
 		NewNickname: "new-nickname",
-		DeliveryUser: domain.DeliveryUser{
+		DeliveryUser: user.DeliveryUser{
 			Nickname: "nickname",
 			Email:    "email",
 		},
 	}
-	updateUser = domain.User{
+	updateUser = user.User{
 		ID:       2,
 		Nickname: "nickname",
 		Email:    "email",
 	}
-	updateUserToUpdate = domain.User{
+	updateUserToUpdate = user.User{
 		ID:       2,
 		Nickname: "new-nickname",
 		Email:    "email",
@@ -94,8 +94,8 @@ func TestUserUsecase_Update(t *testing.T) {
 
 type deleteTest struct {
 	expectedErr error
-	nickname    string
-	user        domain.User
+	nickname string
+	user     user.User
 }
 
 var (
@@ -103,7 +103,7 @@ var (
 		{
 			expectedErr: nil,
 			nickname:    "nickname",
-			user:        domain.User{ID: 2, Nickname: "nickname"},
+			user:        user.User{ID: 2, Nickname: "nickname"},
 		},
 	}
 )

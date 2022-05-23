@@ -5,7 +5,7 @@
 package mock
 
 import (
-	domain "jirno/internal/pkg/domain"
+	domain "jirno/internal/pkg/domain/user"
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"

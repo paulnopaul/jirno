@@ -2,7 +2,7 @@ package sqlite_repo
 
 import (
 	"fmt"
-	"jirno/internal/pkg/domain"
+	domain "jirno/internal/pkg/domain/user"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"

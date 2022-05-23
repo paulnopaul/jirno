@@ -2,15 +2,15 @@ package sqlite_repo
 
 import (
 	sq "github.com/Masterminds/squirrel"
-	"jirno/internal/pkg/domain"
+	"jirno/internal/pkg/domain/project"
 )
 
 const (
-	getByIDQuery = "SELECT id, title, description, additional, is_completed, parent_pid, created_date, completed_date, date_to FROM Projects WHERE id = ?"
-	createQuery  = "INSERT INTO Projects(id, title, description, additional, is_completed, parent_pid, created_date, completed_date, date_to) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)"
+	getByIDQuery = "SELECT id, title, description, is_completed, parent_pid, created_date, completed_date, date_to FROM Projects WHERE id = ?"
+	createQuery  = "INSERT INTO Projects(id, title, description, is_completed, parent_pid, created_date, completed_date, date_to) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)"
 )
 
-func buildUpdateQuery(update domain.ProjectUpdate) (string, []interface{}, error) {
+func buildUpdateQuery(update project.ProjectUpdate) (string, []interface{}, error) {
 	req := sq.Update("Projects").Where(sq.Eq{"id": update.ID})
 	if update.Title != "" {
 		req = req.Set("title", update.Title)

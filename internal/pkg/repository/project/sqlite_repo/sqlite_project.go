@@ -1,8 +1,7 @@
 package sqlite_repo
 
 import (
-	"encoding/json"
-	"jirno/internal/pkg/domain"
+	"jirno/internal/pkg/domain/project"
 	"time"
 
 	sq "github.com/Masterminds/squirrel"
@@ -14,20 +13,13 @@ type SQLiteProject struct {
 	Title         string
 	Description   string
 	ParentProject string
-	Additional    string
 	IsCompleted   bool
 	CreatedDate   int64
 	CompletedDate int64
 	DateTo        int64
 }
 
-func sqliteProjectToDomainProject(src *SQLiteProject) (*domain.Project, error) {
-	resAdditional := map[string]string{}
-	err := json.Unmarshal([]byte(src.Additional), &resAdditional)
-	if err != nil {
-		return nil, err
-	}
-
+func sqliteProjectToDomainProject(src *SQLiteProject) (*project.Project, error) {
 	parsedID, err := uuid.Parse(src.ID)
 	if err != nil {
 		return nil, err
@@ -41,7 +33,7 @@ func sqliteProjectToDomainProject(src *SQLiteProject) (*domain.Project, error) {
 	resCompletedDate := time.Unix(src.CompletedDate, 0)
 	resDateTo := time.Unix(src.CompletedDate, 0)
 
-	return &domain.Project{
+	return &project.Project{
 		ID:            parsedID,
 		ParentProject: parsedPID,
 		Title:         src.Title,
@@ -49,25 +41,19 @@ func sqliteProjectToDomainProject(src *SQLiteProject) (*domain.Project, error) {
 		Users:         nil,
 		Tasks:         nil,
 		IsCompleted:   src.IsCompleted,
-		Additional:    resAdditional,
 		CreatedDate:   resCreatedDate,
 		CompletedDate: &resCompletedDate,
 		DateTo:        &resDateTo,
 	}, nil
 }
 
-func domainProjectToSqliteProject(src domain.Project) (*SQLiteProject, error) {
-	resAdditional, err := json.Marshal(src.Additional)
-	if err != nil {
-		return nil, err
-	}
+func domainProjectToSqliteProject(src project.Project) (*SQLiteProject, error) {
 	res := &SQLiteProject{
 		ID:            src.ID.String(),
 		Title:         src.Title,
 		Description:   src.Description,
 		ParentProject: src.ParentProject.String(),
 		IsCompleted:   src.IsCompleted,
-		Additional:    string(resAdditional),
 		CreatedDate:   src.CreatedDate.Unix(),
 	}
 	if src.CompletedDate != nil {
@@ -87,7 +73,7 @@ type SQLiteProjectFilter struct {
 }
 
 func buildGetByFilterQuery(filter SQLiteProjectFilter) (string, []interface{}, error) {
-	req := sq.Select("id", "title", "description", "additional", "is_completed", "parent_pid", "created_date", "completed_date", "date_to").
+	req := sq.Select("id", "title", "description", "is_completed", "parent_pid", "created_date", "completed_date", "date_to").
 		From("Projects")
 	if filter.User != nil {
 		req = req.Where(sq.Eq{"uid": *filter.User})
@@ -104,7 +90,7 @@ func buildGetByFilterQuery(filter SQLiteProjectFilter) (string, []interface{}, e
 	return req.ToSql()
 }
 
-func sqliteFilterFromDomain(filter domain.ProjectFilter) SQLiteProjectFilter {
+func sqliteFilterFromDomain(filter project.ProjectFilter) SQLiteProjectFilter {
 	res := SQLiteProjectFilter{}
 	if filter.User != nil {
 		res.User = new(int64)

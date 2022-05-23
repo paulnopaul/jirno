@@ -1,7 +1,7 @@
 package sqlite_repo
 
 import (
-	"jirno/internal/pkg/domain"
+	domain "jirno/internal/pkg/domain/task"
 	"testing"
 	"time"
 
@@ -18,7 +18,6 @@ func testTask() domain.Task {
 		Project:       uuid.New(),
 		Title:         "TaskTitle",
 		Description:   "Task description",
-		Additional:    map[string]string{},
 		IsCompleted:   true,
 		CreatedDate:   time.Date(2010, time.October, 10, 1, 1, 1, 0, time.Local),
 		CompletedDate: &complDate,
@@ -39,12 +38,12 @@ func TestSqliteTaskRepo_GetByID(t *testing.T) {
 		t.Fatalf("sqlite task copy fail: %v", err)
 	}
 
-	query := "SELECT id, uid, pid, title, description, additional, is_completed, created_date, completed_date, date_to"
+	query := "SELECT id, uid, pid, title, description, is_completed, created_date, completed_date, date_to"
 	taskRow := sqlmock.NewRows([]string{"id", "uid", "pid",
-		"title", "description", "additional",
+		"title", "description",
 		"is_completed", "created_date", "completed_date", "date_to"}).
 		AddRow(testTask.ID, testTask.User, testTask.Project,
-			testTask.Title, testTask.Description, testTask.Additional,
+			testTask.Title, testTask.Description,
 			testTask.IsCompleted, testTask.CreatedDate, testTask.CompletedDate, testTask.DateTo)
 
 	mock.ExpectQuery(query).WithArgs(testTask.ID).WillReturnRows(taskRow)
@@ -76,14 +75,14 @@ func TestSqliteTaskRepo_GetByFilter(t *testing.T) {
 		t.Fatalf("sqlite task copy fail: %v", err)
 	}
 
-	query := "SELECT id, uid, pid, title, description, additional, is_completed, created_date, completed_date, date_to"
+	query := "SELECT id, uid, pid, title, description,  is_completed, created_date, completed_date, date_to"
 	taskRows := sqlmock.NewRows([]string{"id", "uid", "pid",
-		"title", "description", "additional",
+		"title", "description",
 		"is_completed", "created_date", "completed_date", "date_to"})
 
 	for _, task := range sqliteData {
 		taskRows.AddRow(task.ID, task.User, task.Project,
-			task.Title, task.Description, task.Additional,
+			task.Title, task.Description,
 			task.IsCompleted, task.CreatedDate, task.CompletedDate, task.DateTo)
 	}
 
@@ -120,7 +119,7 @@ func TestSqliteTaskRepo_Create(t *testing.T) {
 	mock.ExpectExec("INSERT INTO Tasks").
 		WithArgs(
 			dbTask.ID, dbTask.User, dbTask.Project,
-			dbTask.Title, dbTask.Description, dbTask.Additional,
+			dbTask.Title, dbTask.Description,
 			dbTask.IsCompleted, dbTask.CreatedDate, dbTask.CompletedDate, dbTask.DateTo,
 		).WillReturnResult(sqlmock.NewResult(1, 1))
 

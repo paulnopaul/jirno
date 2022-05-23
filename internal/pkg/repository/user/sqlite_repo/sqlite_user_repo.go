@@ -3,7 +3,7 @@ package sqlite_repo
 import (
 	"database/sql"
 	"fmt"
-	"jirno/internal/pkg/domain"
+	domain "jirno/internal/pkg/domain/user"
 )
 
 type sqliteUserRepo struct {

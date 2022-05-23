@@ -15,8 +15,8 @@ type SQLiteProject struct {
 	ParentProject string
 	IsCompleted   bool
 	CreatedDate   int64
-	CompletedDate int64
-	DateTo        int64
+	CompletedDate *int64
+	DateTo        *int64
 }
 
 func sqliteProjectToDomainProject(src *SQLiteProject) (*project.Project, error) {
@@ -30,8 +30,18 @@ func sqliteProjectToDomainProject(src *SQLiteProject) (*project.Project, error) 
 	}
 
 	resCreatedDate := time.Unix(src.CreatedDate, 0)
-	resCompletedDate := time.Unix(src.CompletedDate, 0)
-	resDateTo := time.Unix(src.CompletedDate, 0)
+
+	var resCompletedDate *time.Time
+	if src.CompletedDate != nil {
+		resCompletedDate = &time.Time{}
+		*resCompletedDate = time.Unix(*src.CompletedDate, 0)
+	}
+
+	var resDateTo *time.Time
+	if src.DateTo != nil {
+		resDateTo = &time.Time{}
+		*resDateTo = time.Unix(*src.DateTo, 0)
+	}
 
 	return &project.Project{
 		ID:            parsedID,
@@ -42,12 +52,12 @@ func sqliteProjectToDomainProject(src *SQLiteProject) (*project.Project, error) 
 		Tasks:         nil,
 		IsCompleted:   src.IsCompleted,
 		CreatedDate:   resCreatedDate,
-		CompletedDate: &resCompletedDate,
-		DateTo:        &resDateTo,
+		CompletedDate: resCompletedDate,
+		DateTo:        resDateTo,
 	}, nil
 }
 
-func domainProjectToSqliteProject(src project.Project) (*SQLiteProject, error) {
+func sqliteFromDomain(src project.Project) (*SQLiteProject, error) {
 	res := &SQLiteProject{
 		ID:            src.ID.String(),
 		Title:         src.Title,
@@ -56,12 +66,17 @@ func domainProjectToSqliteProject(src project.Project) (*SQLiteProject, error) {
 		IsCompleted:   src.IsCompleted,
 		CreatedDate:   src.CreatedDate.Unix(),
 	}
+
 	if src.CompletedDate != nil {
-		res.CompletedDate = src.CompletedDate.Unix()
+		res.CompletedDate = new(int64)
+		*res.CompletedDate = src.CompletedDate.Unix()
 	}
-	if src.CompletedDate != nil {
-		res.DateTo = src.DateTo.Unix()
+
+	if src.DateTo != nil {
+		res.DateTo = new(int64)
+		*res.DateTo = src.DateTo.Unix()
 	}
+
 	return res, nil
 }
 

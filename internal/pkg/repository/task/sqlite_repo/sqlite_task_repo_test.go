@@ -127,11 +127,3 @@ func TestSqliteTaskRepo_Create(t *testing.T) {
 	err = repo.Create(testDomainTask)
 	assert.Nil(t, err)
 }
-
-func TestSqliteTaskRepo_Update(t *testing.T) {
-
-}
-
-func TestSqliteTaskRepo_Delete(t *testing.T) {
-
-}

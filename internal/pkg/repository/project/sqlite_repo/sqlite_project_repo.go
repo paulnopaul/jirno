@@ -20,7 +20,9 @@ func NewSqliteProjectRepo(sqliteDB *sql.DB) domain.IProjectRepo {
 func (s sqliteProjectRepo) GetByID(id uuid.UUID) (*domain.Project, error) {
 	res := &SQLiteProject{}
 	row := s.db.QueryRow(getByIDQuery, id)
-	err := row.Scan(&res.ID, &res.Title, &res.Description,  &res.IsCompleted, &res.ParentProject, &res.CreatedDate, &res.CompletedDate, &res.DateTo)
+	err := row.Scan(&res.ID, &res.Title, &res.Description,
+		&res.IsCompleted, &res.ParentProject,
+		&res.CreatedDate, &res.CompletedDate, &res.DateTo)
 	if err != nil {
 		return nil, fmt.Errorf("project get by id failed: %v", err)
 	}
@@ -32,12 +34,12 @@ func (s sqliteProjectRepo) GetByID(id uuid.UUID) (*domain.Project, error) {
 }
 
 func (s sqliteProjectRepo) Create(project domain.Project) error {
-	dbProject, err := domainProjectToSqliteProject(project)
+	dbProject, err := sqliteFromDomain(project)
 	if err != nil {
 		return fmt.Errorf("project create (domain to sqlite) failed: %v", err)
 	}
 	_, err = s.db.Exec(createQuery,
-		dbProject.ID, dbProject.Title, dbProject.Description,  dbProject.IsCompleted,
+		dbProject.ID, dbProject.Title, dbProject.Description, dbProject.IsCompleted,
 		dbProject.ParentProject, dbProject.CreatedDate, dbProject.CompletedDate, dbProject.DateTo)
 	if err != nil {
 		return fmt.Errorf("project create failed: %v", err)

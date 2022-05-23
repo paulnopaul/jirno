@@ -117,7 +117,7 @@ func TestSqliteProjectRepo_Create(t *testing.T) {
 	mock.ExpectExec("INSERT INTO Projects").
 		WithArgs(
 			dbProject.ID, dbProject.Title, dbProject.Description,
-			dbProject.ParentProject, dbProject.IsCompleted,
+			dbProject.IsCompleted, dbProject.ParentProject,
 			dbProject.CreatedDate, dbProject.CompletedDate, dbProject.DateTo,
 		).WillReturnResult(sqlmock.NewResult(1, 1))
 

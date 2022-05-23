@@ -5,25 +5,26 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
-	"jirno/internal/pkg/domain"
+	"jirno/internal/pkg/domain/project"
 	"jirno/internal/pkg/repository/project/mock"
 	"jirno/internal/pkg/utils"
+	"jirno/internal/smart_parser"
 	"testing"
 	"time"
 )
 
 type getByFilterTest struct {
 	expectedError  error
-	expectedRes    []domain.Project
-	expectedFilter domain.ProjectFilter
-	filter         domain.SmartProjectFilter
+	expectedRes    []project.Project
+	expectedFilter project.ProjectFilter
+	filter         project.SmartProjectFilter
 }
 
 var (
-	now        = time.Now()
+	now                  = time.Now()
 	todayStart, todayEnd = utils.GetDayRange(time.Now())
-	testUserID = int64(3)
-	resArr     = []domain.Project{
+	testUserID           = int64(3)
+	resArr               = []project.Project{
 		{
 			Title:       "Project1",
 			Description: "Project1 description",
@@ -42,10 +43,10 @@ var (
 		{
 			expectedError: nil,
 			expectedRes:   resArr,
-			filter: domain.SmartProjectFilter{
+			filter: project.SmartProjectFilter{
 				Smart: "today",
 			},
-			expectedFilter: domain.ProjectFilter{
+			expectedFilter: project.ProjectFilter{
 				StartDate: &todayStart,
 				EndDate:   &todayEnd,
 			},
@@ -53,11 +54,11 @@ var (
 		{
 			expectedError: nil,
 			expectedRes:   resArr,
-			filter: domain.SmartProjectFilter{
+			filter: project.SmartProjectFilter{
 				StartDate: &todayStart,
 				EndDate:   &todayEnd,
 			},
-			expectedFilter: domain.ProjectFilter{
+			expectedFilter: project.ProjectFilter{
 				StartDate: &todayStart,
 				EndDate:   &todayEnd,
 			},
@@ -65,10 +66,10 @@ var (
 		{
 			expectedError: nil,
 			expectedRes:   resArr,
-			filter: domain.SmartProjectFilter{
+			filter: project.SmartProjectFilter{
 				User: &testUserID,
 			},
-			expectedFilter: domain.ProjectFilter{
+			expectedFilter: project.ProjectFilter{
 				User: &testUserID,
 			},
 		},
@@ -78,7 +79,7 @@ var (
 func TestProjectUsecase_GetByFilter(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	projectRepo := mock.NewMockIProjectRepo(ctrl)
-	usecase := NewProjectUsecase(projectRepo)
+	usecase := NewProjectUsecase(projectRepo, smart_parser.NewDefaultProjectParser())
 	for index, testData := range getByFilterData {
 		t.Run(fmt.Sprintf("#%v", index), func(t *testing.T) {
 			projectRepo.EXPECT().GetByFilter(testData.expectedFilter).Return(testData.expectedRes, nil).Times(1)
@@ -92,7 +93,7 @@ func TestProjectUsecase_GetByFilter(t *testing.T) {
 type completeTest struct {
 	expectedError  error
 	projectID      uuid.UUID
-	expectedUpdate domain.ProjectUpdate
+	expectedUpdate project.ProjectUpdate
 }
 
 var (
@@ -102,7 +103,7 @@ var (
 		{
 			expectedError: nil,
 			projectID:     completeProjectID,
-			expectedUpdate: domain.ProjectUpdate{
+			expectedUpdate: project.ProjectUpdate{
 				ID:          completeProjectID,
 				IsCompleted: &completeIsCompleted,
 			}},
@@ -112,7 +113,7 @@ var (
 func TestProjectUsecase_Complete(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	projectRepo := mock.NewMockIProjectRepo(ctrl)
-	usecase := NewProjectUsecase(projectRepo)
+	usecase := NewProjectUsecase(projectRepo, smart_parser.NewDefaultProjectParser())
 	for index, testData := range completeData {
 		t.Run(fmt.Sprintf("#%v", index), func(t *testing.T) {
 			projectRepo.EXPECT().Update(testData.expectedUpdate).Return(testData.expectedError).Times(1)
@@ -140,7 +141,7 @@ var (
 func TestProjectUsecase_Delete(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	projectRepo := mock.NewMockIProjectRepo(ctrl)
-	usecase := NewProjectUsecase(projectRepo)
+	usecase := NewProjectUsecase(projectRepo, smart_parser.NewDefaultProjectParser())
 	for index, testData := range deleteData {
 		t.Run(fmt.Sprintf("#%v", index), func(t *testing.T) {
 			projectRepo.EXPECT().Delete(testData.projectID).Return(testData.expectedError).Times(1)
@@ -152,11 +153,11 @@ func TestProjectUsecase_Delete(t *testing.T) {
 
 type createTest struct {
 	expectedError error
-	project       domain.Project
+	project       project.Project
 }
 
 var (
-	createProject = domain.Project{
+	createProject = project.Project{
 		Title:       "Project",
 		Description: "Project description",
 	}
@@ -171,7 +172,7 @@ var (
 func TestProjectUsecase_Create(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	projectRepo := mock.NewMockIProjectRepo(ctrl)
-	usecase := NewProjectUsecase(projectRepo)
+	usecase := NewProjectUsecase(projectRepo, smart_parser.NewDefaultProjectParser())
 	for index, testData := range createData {
 		t.Run(fmt.Sprintf("#%v", index), func(t *testing.T) {
 			projectRepo.EXPECT().Create(gomock.Any()).Return(testData.expectedError).Times(1)

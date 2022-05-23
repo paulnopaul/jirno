@@ -2,29 +2,29 @@ package user
 
 import (
 	"fmt"
-	"jirno/internal/pkg/domain"
+	"jirno/internal/pkg/domain/user"
 	"jirno/internal/pkg/utils"
 )
 
 type userUsecase struct {
-	repo domain.IUserRepo
+	repo user.IUserRepo
 }
 
-func NewUserUsecase(userRepo domain.IUserRepo) domain.IUserUsecase {
+func NewUserUsecase(userRepo user.IUserRepo) user.IUserUsecase {
 	return &userUsecase{
 		repo: userRepo,
 	}
 }
 
-func (u userUsecase) GetByID(id int64) (*domain.User, error) {
+func (u userUsecase) GetByID(id int64) (*user.User, error) {
 	return u.repo.GetByID(id)
 }
 
-func (u userUsecase) GetByNickname(nickname string) (*domain.User, error) {
+func (u userUsecase) GetByNickname(nickname string) (*user.User, error) {
 	return u.repo.GetByNickname(nickname)
 }
 
-func (u userUsecase) Signup(user domain.DeliveryUser) (int64, error) {
+func (u userUsecase) Signup(user user.DeliveryUser) (int64, error) {
 	userToSignup, err := user.ToDomain()
 	if err != nil {
 		return 0, fmt.Errorf("user signup (to domain) failed %v", err)
@@ -41,7 +41,7 @@ func (u userUsecase) Signup(user domain.DeliveryUser) (int64, error) {
 	return maxID + 1, nil
 }
 
-func (u userUsecase) Update(user domain.DeliveryUserUpdate) error {
+func (u userUsecase) Update(user user.DeliveryUserUpdate) error {
 	userByID, err := u.repo.GetByNickname(user.Nickname)
 	if err != nil {
 		return fmt.Errorf("user update (get id) failed %v", err)
@@ -64,7 +64,7 @@ func (u userUsecase) Delete(nickname string) error {
 	return u.repo.Delete(user.ID)
 }
 
-func (u userUsecase) Check(user domain.DeliveryUser) (bool, int64, error) {
+func (u userUsecase) Check(user user.DeliveryUser) (bool, int64, error) {
 	resUser, err := u.GetByNickname(user.Nickname)
 	if err != nil {
 		return false, 0, fmt.Errorf("user check (get user) failed %v", err)

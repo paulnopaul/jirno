@@ -1,12 +1,12 @@
 package main
 
 import (
-	app "jirno/internal/app/gocui-cli"
+	tview_cli "jirno/internal/app/tview-cli"
 	"log"
 )
 
 func main() {
-	err := app.RunApp()
+	err := tview_cli.RunApp()
 	if err != nil {
 		log.Fatalln(err)
 	}

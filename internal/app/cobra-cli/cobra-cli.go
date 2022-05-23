@@ -14,7 +14,7 @@ import (
 	"jirno/internal/pkg/usecase/project"
 	"jirno/internal/pkg/usecase/task"
 	"jirno/internal/pkg/usecase/user"
-
+	"jirno/internal/smart_parser"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -30,8 +30,8 @@ func RunApp() error {
 	userRepo := sqlite_repo3.NewSqliteUserRepo(db)
 	localStorage := localstorage.NewSQLiteLocalStorage(db)
 
-	taskUsecase := task.NewTaskUsecase(taskRepo)
-	projectUsecase := project.NewProjectUsecase(projectRepo)
+	taskUsecase := task.NewTaskUsecase(taskRepo, smart_parser.NewDefaultTaskParser())
+	projectUsecase := project.NewProjectUsecase(projectRepo, smart_parser.NewDefaultProjectParser())
 	userUsercase := user.NewUserUsecase(userRepo)
 
 	var rootCmd = &cobra.Command{Use: "jirno"}
@@ -42,4 +42,3 @@ func RunApp() error {
 
 	return rootCmd.Execute()
 }
-

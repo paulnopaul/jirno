@@ -2,7 +2,7 @@ package project
 
 import (
 	"github.com/spf13/cobra"
-	"jirno/internal/pkg/domain"
+	domain "jirno/internal/pkg/domain/project"
 )
 
 type projectHandler struct {

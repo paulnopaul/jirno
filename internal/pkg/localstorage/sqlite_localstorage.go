@@ -5,7 +5,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/google/uuid"
-	"jirno/internal/pkg/domain"
+	"jirno/internal/pkg/domain/project"
+	"jirno/internal/pkg/domain/task"
+	"jirno/internal/pkg/domain/user"
 	"strconv"
 )
 
@@ -41,7 +43,7 @@ func (s sqliteLocalStorage) GetUserID() (int64, error) {
 	return res, nil
 }
 
-func (s sqliteLocalStorage) SetTaskList(tasks []domain.Task) error {
+func (s sqliteLocalStorage) SetTaskList(tasks []task.Task) error {
 	idMap := map[int]string{}
 	for i, value := range tasks {
 		idMap[i] = value.ID.String()
@@ -53,7 +55,7 @@ func (s sqliteLocalStorage) SetTaskList(tasks []domain.Task) error {
 	return updateDBValue(s.db, "last_tasks", string(res))
 }
 
-func (s sqliteLocalStorage) SetProjectList(projects []domain.Project) error {
+func (s sqliteLocalStorage) SetProjectList(projects []project.Project) error {
 	idMap := map[int]string{}
 	for i, value := range projects {
 		idMap[i] = value.ID.String()
@@ -65,6 +67,6 @@ func (s sqliteLocalStorage) SetProjectList(projects []domain.Project) error {
 	return updateDBValue(s.db, "last_tasks", string(res))
 }
 
-func (s sqliteLocalStorage) SetCurrentUser(user domain.User) error {
+func (s sqliteLocalStorage) SetCurrentUser(user user.User) error {
 	return updateDBValue(s.db, "current_user", fmt.Sprint(user.ID))
 }

@@ -2,7 +2,7 @@ package user
 
 import (
 	"github.com/spf13/cobra"
-	"jirno/internal/pkg/domain"
+	domain "jirno/internal/pkg/domain/user"
 	"jirno/internal/pkg/localstorage"
 )
 

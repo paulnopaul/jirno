@@ -3,7 +3,7 @@ package user
 import (
 	"fmt"
 	"github.com/spf13/cobra"
-	"jirno/internal/pkg/domain"
+	domain "jirno/internal/pkg/domain/user"
 )
 
 func addUserLoginHandler(userRoot *cobra.Command, handler *userHandler) {

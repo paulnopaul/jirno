@@ -2,7 +2,7 @@ package task
 
 import (
 	"fmt"
-	"jirno/internal/pkg/domain"
+	domain "jirno/internal/pkg/domain/task"
 	"strconv"
 	"time"
 
@@ -83,8 +83,8 @@ func parseTask(cmd *cobra.Command, args []string, t taskType) (*domain.DeliveryT
 	return res, nil
 }
 
-func parseFilter(cmd *cobra.Command, args []string) (*domain.SmartTaskFilter, error) {
-	res := &domain.SmartTaskFilter{}
+func parseFilter(cmd *cobra.Command, args []string) (*domain.DeliveryTaskFilter, error) {
+	res := &domain.DeliveryTaskFilter{}
 
 	if len(args) > 0 {
 		res.Smart = args[0]

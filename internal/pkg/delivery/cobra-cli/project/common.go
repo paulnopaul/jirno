@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/google/uuid"
 	"github.com/spf13/cobra"
-	"jirno/internal/pkg/domain"
+	domain "jirno/internal/pkg/domain/project"
 	"time"
 )
 

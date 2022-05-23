@@ -7,7 +7,7 @@ import (
 
 const (
 	getByIDQuery = "SELECT id, uid, pid, title, description,  is_completed, created_date, completed_date, date_to FROM Tasks WHERE id = ?"
-	createQuery  = "INSERT INTO Tasks(id, uid, pid, title, description,  is_completed, created_date, completed_date, date_to) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+	createQuery  = "INSERT INTO Tasks(id, uid, pid, title, description, is_completed, created_date, completed_date, date_to) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
 )
 
 func buildGetByFilterQuery(filter SQLiteTaskFilter) (string, []interface{}, error) {

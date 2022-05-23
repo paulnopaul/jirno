@@ -2,13 +2,15 @@ package localstorage
 
 import (
 	"github.com/google/uuid"
-	"jirno/internal/pkg/domain"
+	"jirno/internal/pkg/domain/project"
+	"jirno/internal/pkg/domain/task"
+	"jirno/internal/pkg/domain/user"
 )
 
 type localStorage struct {
-	lastTasks map[int]uuid.UUID
+	lastTasks    map[int]uuid.UUID
 	lastProjects map[int]uuid.UUID
-	currentUser int64
+	currentUser  int64
 }
 
 type LocalStorage interface {
@@ -16,8 +18,7 @@ type LocalStorage interface {
 	GetProjectID(number int) (uuid.UUID, error)
 	GetUserID() (int64, error)
 
-	SetTaskList(tasks []domain.Task) error
-	SetProjectList(projects []domain.Project) error
-	SetCurrentUser(domain.User) error
+	SetTaskList(tasks []task.Task) error
+	SetProjectList(projects []project.Project) error
+	SetCurrentUser(user.User) error
 }
-

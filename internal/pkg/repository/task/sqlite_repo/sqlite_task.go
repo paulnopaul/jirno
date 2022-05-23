@@ -68,7 +68,7 @@ func domainFromSQLite(src *SQLiteTask) (*domain.Task, error) {
 	var resDateTo *time.Time
 	if src.DateTo != nil {
 		resDateTo = &time.Time{}
-		*resDateTo = time.Unix(*src.CompletedDate, 0)
+		*resDateTo = time.Unix(*src.DateTo, 0)
 	}
 
 	return &domain.Task{

@@ -17,7 +17,7 @@ type IUserUsecase interface {
 	Delete(nickname string) error
 }
 
-//go:generate mockgen -destination=../repository/user/mock/mock_repo.go -package=mock jirno/internal/pkg/domain IUserRepo
+//go:generate mockgen -destination=../../repository/user/mock/mock_repo.go -package=mock jirno/internal/pkg/domain/user IUserRepo
 type IUserRepo interface {
 	GetByID(id int64) (*User, error)
 	GetByNickname(nickname string) (*User, error)

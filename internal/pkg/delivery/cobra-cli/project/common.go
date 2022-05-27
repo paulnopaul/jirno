@@ -5,6 +5,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/spf13/cobra"
 	domain "jirno/internal/pkg/domain/project"
+	"strconv"
 	"time"
 )
 
@@ -137,4 +138,29 @@ func parseFilter(cmd *cobra.Command, args []string) (*domain.SmartProjectFilter,
 	res.ParentProject = parsedPid
 
 	return res, nil
+}
+
+func (h projectHandler) getTaskID(cmd *cobra.Command, args []string) (uuid.UUID, error) {
+	var id uuid.UUID
+	if len(args) == 0 {
+		idFlag, err := cmd.Flags().GetString("id")
+		if idFlag == "" {
+			return uuid.UUID{}, fmt.Errorf("id not provided")
+		}
+		id, err = uuid.Parse(idFlag)
+		if err != nil {
+			return uuid.UUID{}, fmt.Errorf("uuid parsing failed: %v\n", err)
+		}
+	} else {
+		idStr := args[0]
+		idNum, err := strconv.ParseInt(idStr, 10, 32)
+		if err != nil {
+			return uuid.UUID{}, fmt.Errorf("id number parsing failed: %v\n", err)
+		}
+		id, err = h.storage.GetTaskID(int(idNum))
+		if err != nil {
+			return uuid.UUID{}, fmt.Errorf("id localstorage request failed: %v\n", err)
+		}
+	}
+	return id, nil
 }

@@ -17,25 +17,72 @@ const (
 	typeTaskUpdate taskType = 1
 )
 
-func parseTask(cmd *cobra.Command, args []string, t taskType) (*domain.DeliveryTask, error) {
+func (h taskHandler) parseTask(cmd *cobra.Command, args []string, t taskType) (*domain.DeliveryTask, error) {
 	res := &domain.DeliveryTask{}
 
 	if t == typeTaskUpdate {
-		parsedId, err := cmd.Flags().GetString("id")
+		parsedId, err := h.getTaskID(cmd, args)
 		if err != nil {
-			return nil, fmt.Errorf("id flag error: %v", err)
+			return nil, err
 		}
-		res.ID = parsedId
+		res.ID = parsedId.String()
+
+		parsedDateCompleted, err := cmd.Flags().GetString("datecompleted")
+		if err != nil {
+			return nil, fmt.Errorf("datecompleted flag error: %v", err)
+		}
+		if parsedDateCompleted != "" {
+			res.CompletedDate = new(time.Time)
+			*res.CompletedDate, err = time.Parse(time.RFC3339, parsedDateCompleted)
+		}
+
 	}
 
-	parsedUid, err := cmd.Flags().GetInt64("uid")
-	if err != nil {
-		return nil, fmt.Errorf("user id flag error: %v", err)
+	// title
+
+	if t == typeTask && len(args) != 0 {
+		res.Title = args[0]
 	}
-	if parsedUid != 0 {
-		res.User = new(int64)
-		*res.User = parsedUid
+
+	if cmd.Flag("title").Changed {
+		parsedTitle, err := cmd.Flags().GetString("title")
+		if err != nil {
+			return nil, fmt.Errorf("task id flag error: %v", err)
+		}
+		res.Title = parsedTitle
 	}
+
+	//optional fields
+
+	if cmd.Flag("uid").Changed {
+		parsedUid, err := cmd.Flags().GetInt64("uid")
+		if err != nil {
+			return nil, fmt.Errorf("user id flag error: %v", err)
+		}
+		if parsedUid != 0 {
+			res.User = new(int64)
+			*res.User = parsedUid
+		}
+	} else {
+		user, err := h.storage.GetUserID()
+		if err != nil {
+			return nil, fmt.Errorf("user local storage error %v", err)
+		}
+		if user == 0 {
+			return nil, fmt.Errorf("user not provided")
+		}
+	}
+
+	if cmd.Flag("completed").Changed {
+		parsedCompleted, err := cmd.Flags().GetBool("completed")
+		if err != nil {
+			return nil, fmt.Errorf("completed flag error: %v", err)
+		}
+		res.IsCompleted = new(bool)
+		*res.IsCompleted = parsedCompleted
+	}
+
+	// other fields
 
 	parsedPid, err := cmd.Flags().GetString("pid")
 	if err != nil {
@@ -49,37 +96,14 @@ func parseTask(cmd *cobra.Command, args []string, t taskType) (*domain.DeliveryT
 	}
 	res.Description = parsedDescription
 
-	if len(args) != 0 {
-		res.Title = args[0]
-	}
-
-	parsedCompleted, err := cmd.Flags().GetBoolSlice("completed")
-	if err != nil {
-		return nil, fmt.Errorf("completed flag error: %v", err)
-	}
-	if parsedCompleted != nil && len(parsedCompleted) != 0 {
-		res.IsCompleted = new(bool)
-		*res.IsCompleted = parsedCompleted[0]
-	}
-
-	parsedDateCompleted, err := cmd.Flags().GetString("datecompleted")
-	if err != nil {
-		return nil, fmt.Errorf("datecompleted flag error: %v", err)
-	}
-	if parsedDateCompleted != "" {
-		res.CompletedDate = new(time.Time)
-		*res.CompletedDate, err = time.Parse(time.RFC3339, parsedDateCompleted)
-	}
-
 	parsedDateTo, err := cmd.Flags().GetString("dateto")
 	if err != nil {
 		return nil, fmt.Errorf("dateto flag error: %v", err)
 	}
 	if parsedDateTo != "" {
 		res.DateTo = new(time.Time)
-		*res.DateTo, err = time.Parse(time.RFC3339, parsedDateTo)
+		*res.DateTo, err = time.Parse("2006-01-01", parsedDateTo)
 	}
-
 	return res, nil
 }
 
@@ -130,7 +154,7 @@ func parseFilter(cmd *cobra.Command, args []string) (*domain.DeliveryTaskFilter,
 func (h taskHandler) getTaskID(cmd *cobra.Command, args []string) (uuid.UUID, error) {
 	var id uuid.UUID
 	if len(args) == 0 {
-		idFlag, err := cmd.Flags().GetString("uuid")
+		idFlag, err := cmd.Flags().GetString("id")
 		if idFlag == "" {
 			return uuid.UUID{}, fmt.Errorf("id not provided")
 		}
@@ -150,4 +174,16 @@ func (h taskHandler) getTaskID(cmd *cobra.Command, args []string) (uuid.UUID, er
 		}
 	}
 	return id, nil
+}
+
+func taskToStr(t domain.Task, num int) string {
+	completed := ' '
+	if t.IsCompleted {
+		completed = 'x'
+	}
+	dateStr := ""
+	if t.DateTo != nil {
+		dateStr = t.DateTo.Format("2006-01-01")
+	}
+	return fmt.Sprintf("%d [%c] %s %s (%s)", num, completed, t.Title, t.Description, dateStr)
 }

@@ -37,5 +37,5 @@ func (h userHandler) Login(cmd *cobra.Command, args []string) {
 		fmt.Printf("User updating local data error: %v", err)
 		return
 	}
-	fmt.Printf("Successfull login with id %v", id)
+	fmt.Printf("Successfull login with id %v\n", id)
 }

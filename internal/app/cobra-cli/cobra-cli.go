@@ -37,7 +37,7 @@ func RunApp() error {
 	var rootCmd = &cobra.Command{Use: "jirno"}
 
 	task2.NewTaskHandler(rootCmd, taskUsecase, localStorage)
-	project2.NewProjectHandler(rootCmd, projectUsecase)
+	project2.NewProjectHandler(rootCmd, projectUsecase, localStorage)
 	user2.NewUserHandler(rootCmd, userUsercase, localStorage)
 
 	return rootCmd.Execute()

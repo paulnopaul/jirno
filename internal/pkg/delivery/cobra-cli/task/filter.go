@@ -38,6 +38,6 @@ func (h taskHandler) Filter(cmd *cobra.Command, args []string) {
 	}
 
 	for i, value := range res {
-		fmt.Println(i, value.Title, value.IsCompleted, value.ID)
+		fmt.Println(taskToStr(value, i))
 	}
 }

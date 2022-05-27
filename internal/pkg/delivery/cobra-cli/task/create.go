@@ -6,29 +6,29 @@ import (
 )
 
 func addTaskCreateHandler(taskRoot *cobra.Command, handler *taskHandler) {
-	cmdNew := &cobra.Command{
-		Use:   "create",
+	cmd := &cobra.Command{
+		Use:   "create TITLE",
 		Short: "Create new task",
 		Run:   handler.Create,
 	}
-	cmdNew.Flags().Int64P("uid", "u", 0, "user id")
-	cmdNew.Flags().StringP("pid", "p", "", "project id")
-	cmdNew.Flags().StringP("description", "d", "", "task description")
-	cmdNew.Flags().StringP("datecompleted", "x", "", "date when task was completed")
-	cmdNew.Flags().StringP("dateto", "t", "", "date task has to be completed")
-	cmdNew.Flags().BoolSliceP("completed", "c", []bool{}, "is task completed")
-	taskRoot.AddCommand(cmdNew)
+	cmd.Flags().StringP("pid", "p", "", "project id")
+	cmd.Flags().Int64P("uid", "u", 0, "user id")
+	cmd.Flags().StringP("title", "n", "", "project id")
+	cmd.Flags().StringP("description", "d", "", "task description")
+	cmd.Flags().StringP("dateto", "t", "", "date task has to be completed")
+	cmd.Flags().BoolP("completed", "c", false, "is task completed")
+	taskRoot.AddCommand(cmd)
 
 }
 
 func (h taskHandler) Create(cmd *cobra.Command, args []string) {
-	dTask, err := parseTask(cmd, args, typeTask)
+	dTask, err := h.parseTask(cmd, args, typeTask)
 	if err != nil {
 		fmt.Printf("Task parsing error: %v\n", err)
 		return
 	}
 
-	newTask, err := (*dTask).ToDomain()
+	newTask, err := dTask.ToDomain()
 	if err != nil {
 		fmt.Printf("Task casting error: %v\n", err)
 		return

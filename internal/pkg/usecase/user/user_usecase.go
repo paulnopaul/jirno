@@ -69,7 +69,6 @@ func (u userUsecase) Check(user user.DeliveryUser) (bool, int64, error) {
 	if err != nil {
 		return false, 0, fmt.Errorf("user check (get user) failed %v", err)
 	}
-	fmt.Println(resUser.Name, resUser.ID)
 
 	if !utils.CmpPassword(user.Password, resUser.Password) {
 		return false, 0, nil

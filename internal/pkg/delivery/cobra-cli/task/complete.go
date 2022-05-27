@@ -12,7 +12,7 @@ func addTaskCompleteHandler(taskRoot *cobra.Command, handler *taskHandler) {
 		Short: "Complete Task",
 		Run:   handler.Complete,
 	}
-	cmd.Flags().StringP("uuid", "i", "", "task id (full)")
+	cmd.Flags().StringP("id", "i", "", "task id (full)")
 	taskRoot.AddCommand(cmd)
 }
 

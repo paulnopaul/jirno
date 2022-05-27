@@ -3,7 +3,6 @@ package task
 import (
 	"fmt"
 
-	"github.com/google/uuid"
 	"github.com/spf13/cobra"
 )
 
@@ -17,17 +16,12 @@ func addTaskDeleteHandler(taskRoot *cobra.Command, handler *taskHandler) {
 }
 
 func (h taskHandler) Delete(cmd *cobra.Command, args []string) {
-	if len(args) == 0 {
-		fmt.Printf("id not provided")
-		return
-	}
-	id := args[0]
-	parsedId, err := uuid.Parse(id)
+	id, err := h.getTaskID(cmd, args)
 	if err != nil {
-		fmt.Printf("id parsing error: %v\n", err)
+		fmt.Printf("Can't get task id: %v\n", err)
 		return
 	}
-	err = h.tUsecase.Delete(parsedId)
+	err = h.tUsecase.Delete(id)
 	if err != nil {
 		fmt.Printf("Task deletion error: %v\n", err)
 	}

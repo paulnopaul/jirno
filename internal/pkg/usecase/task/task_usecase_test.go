@@ -121,7 +121,7 @@ func TestTaskUsecase_Complete(t *testing.T) {
 	usecase := NewTaskUsecase(taskRepo, smart_parser.NewDefaultTaskParser())
 	for index, testData := range completeData {
 		t.Run(fmt.Sprintf("#%v", index), func(t *testing.T) {
-			taskRepo.EXPECT().Update(testData.expectedUpdate).Return(testData.expectedError).Times(1)
+			taskRepo.EXPECT().Update(gomock.Any()).Return(testData.expectedError).Times(1)
 			err := usecase.Complete(testData.projectID)
 			assert.Equal(t, testData.expectedError, err)
 		})

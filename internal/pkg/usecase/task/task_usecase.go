@@ -5,6 +5,7 @@ import (
 	"github.com/google/uuid"
 	"jirno/internal/pkg/domain/task"
 	"jirno/internal/smart_parser"
+	"time"
 )
 
 type taskUsecase struct {
@@ -21,6 +22,7 @@ func NewTaskUsecase(taskRepo task.ITaskRepo, smartFilterParser smart_parser.ISma
 
 func (t taskUsecase) Create(task task.Task) (uuid.UUID, error) {
 	task.ID = uuid.New()
+	task.CreatedDate = time.Now()
 	return task.ID, t.repo.Create(task)
 }
 
@@ -43,6 +45,8 @@ func (t taskUsecase) Complete(id uuid.UUID) error {
 	}
 	update.IsCompleted = new(bool)
 	*update.IsCompleted = true
+	update.CompletedDate = new(time.Time)
+	*update.CompletedDate = time.Now()
 	return t.repo.Update(update)
 }
 

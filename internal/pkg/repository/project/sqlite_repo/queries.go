@@ -7,7 +7,7 @@ import (
 
 const (
 	getByIDQuery = "SELECT id, title, description, is_completed, parent_pid, created_date, completed_date, date_to FROM Projects WHERE id = ?"
-	createQuery  = "INSERT INTO Projects(id, title, description, is_completed, parent_pid, created_date, completed_date, date_to) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)"
+	createQuery  = "INSERT INTO Projects(id, title, description, is_completed, parent_pid, created_date, completed_date, date_to) VALUES(?, ?, ?, ?, ?, ?, ?, ?)"
 )
 
 func buildUpdateQuery(update project.ProjectUpdate) (string, []interface{}, error) {

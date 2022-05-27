@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"fmt"
 	domain "jirno/internal/pkg/domain/task"
-
 	"github.com/google/uuid"
 )
 

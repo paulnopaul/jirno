@@ -18,6 +18,11 @@ type DeliveryTask struct {
 
 func (d DeliveryTask) ToUpdate() (*TaskUpdate, error) {
 	res := &TaskUpdate{}
+	parsedID, err := uuid.Parse(d.ID)
+	if err != nil {
+		return nil, err
+	}
+	res.ID = parsedID
 	if d.User != nil {
 		res.User = new(int64)
 		*res.User = *d.User

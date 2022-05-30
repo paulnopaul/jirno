@@ -5,3 +5,7 @@
 2. UML-диаграмма классов для технологического UI ко всем функциям системы (консольное приложение)s
 
 ![high-level diagram](files/techno-ui.svg)
+
+3. (lab6)
+
+![high-level diagram](files/project-uml-full.svg)

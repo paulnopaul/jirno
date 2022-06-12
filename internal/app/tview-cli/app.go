@@ -25,7 +25,6 @@ func RunApp() error {
 	taskUsecase := task.NewTaskUsecase(taskRepo)
 
 	app := tview.NewApplication()
-	app.EnableMouse(true)
 
 	taskListViewHandler := task_list.NewTaskListView(taskUsecase, localStorage)
 	taskListView := taskListViewHandler.SetView()

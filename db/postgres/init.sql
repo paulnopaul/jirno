@@ -1,3 +1,14 @@
+drop user if exists admin;
+create
+user admin with password 'dbms';
+
+drop database if exists jirno;
+create
+database jirno;
+
+grant all privileges on database
+jirno to admin;
+
 create table Users
 (
     id       integer,
@@ -22,6 +33,7 @@ create table Tasks
 );
 
 
+--    "id", "uid", "pid", "title", "description", "additional", "is_completed", "created_date", "completed_date", "date_to"
 create table Projects
 (
     id             varchar(40),
@@ -46,4 +58,3 @@ create table LocalStorage (
     field varchar(40),
     value text
 );
-

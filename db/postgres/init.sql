@@ -1,60 +1,89 @@
-drop user if exists admin;
-create
-user admin with password 'dbms';
+CREATE ROLE ADMIN WITH LOGIN SUPERUSER PASSWORD 'dbms';
 
-drop database if exists jirno;
-create
-database jirno;
+CREATE DATABASE jirno;
 
-grant all privileges on database
-jirno to admin;
+\c jirno
 
-create table Users
+CREATE TABLE Users
 (
-    id       integer,
-    name     text,
-    nickname text,
-    email    text,
-    password text
+    id         INTEGER PRIMARY KEY,
+    first_name VARCHAR(40) NOT NULL,
+    last_name  VARCHAR(40) NOT NULL,
+    nickname   VARCHAR(40) NOT NULL UNIQUE,
+    email      VARCHAR(40) NOT NULL UNIQUE,
+    password   VARCHAR(40) NOT NULL UNIQUE,
+    phone      VARCHAR(20) UNIQUE
 );
 
-create table Tasks
+CREATE TABLE Tasks
 (
-    id             varchar(40),
-    uid            integer,
-    pid            varchar(40),
-    title          text,
-    description    text,
-    additional     text,
-    is_completed   integer,
-    created_date   integer,
-    completed_date integer,
-    date_to        integer
+    id             UUID PRIMARY KEY,
+    creator        INTEGER      NOT NULL,
+    executor       INTEGER,
+    status         INTEGER      NOT NULL,
+    title          VARCHAR(256) NOT NULL,
+    description    TEXT,
+    is_completed   BOOLEAN      NOT NULL,
+    created_date   DATE         NOT NULL,
+    start_date     DATE,
+    date_to        DATE,
+    completed_date DATE
 );
 
 
---    "id", "uid", "pid", "title", "description", "additional", "is_completed", "created_date", "completed_date", "date_to"
-create table Projects
+CREATE TABLE TaskStatuses
 (
-    id             varchar(40),
-    title          text,
-    description    text,
-    additional     text,
-    is_completed   integer,
-    parent_pid     varchar(40),
-    created_date   integer,
-    completed_date integer,
-    date_to        integer
+    id    INTEGER PRIMARY KEY,
+    value VARCHAR(40) UNIQUE
 );
 
-create table ProjectUsers
+ALTER TABLE Tasks
+    ADD CONSTRAINT tasks_creator_fk FOREIGN KEY (creator) REFERENCES Users (id),
+    ADD CONSTRAINT tasks_executor_fk FOREIGN KEY (executor) REFERENCES Users (id),
+    ADD CONSTRAINT tasks_status_fk FOREIGN KEY (executor) REFERENCES TaskStatuses (id);
+
+CREATE TABLE Projects
 (
-    pid varchar(40),
-    uid integer
+    id           UUID PRIMARY KEY,
+    creator      INTEGER NOT NULL,
+    title        TEXT    NOT NULL,
+    description  TEXT,
+    status       INTEGER NOT NULL,
+    parent_pid   UUID,
+    created_date DATE
 );
 
--- LOCAL STORAGE --
-create table LocalStorage (
-    field varchar(40),
-    value text
+create table ProjectStatuses
+(
+    id    INTEGER PRIMARY KEY,
+    value VARCHAR(40) UNIQUE
 );
+
+
+ALTER TABLE Projects
+    ADD CONSTRAINT projects_parent_pid_fk FOREIGN KEY (parent_pid) REFERENCES Projects (id),
+    ADD CONSTRAINT projects_creator_fk FOREIGN KEY (creator) REFERENCES Users (id),
+    ADD CONSTRAINT projects_status_fk FOREIGN KEY (status) REFERENCES ProjectStatuses (id);
+
+CREATE TABLE ProjectUsers
+(
+    pid UUID,
+    uid INTEGER
+);
+
+ALTER TABLE ProjectUsers
+    ADD CONSTRAINT project_users_pair_unique UNIQUE (pid, uid),
+    ADD CONSTRAINT project_users_pid_fk FOREIGN KEY (pid) REFERENCES Projects (id),
+    ADD CONSTRAINT project_users_uid_fk FOREIGN KEY (uid) REFERENCES Users (id);
+
+
+CREATE TABLE ProjectTasks
+(
+    pid UUID,
+    tid UUID
+);
+
+ALTER TABLE ProjectTasks
+    ADD CONSTRAINT project_tasks_pair_unique UNIQUE (pid, tid),
+    ADD CONSTRAINT project_tasks_pid_fk FOREIGN KEY (pid) REFERENCES Projects (id),
+    ADD CONSTRAINT project_tasks_uid_fk FOREIGN KEY (tid) REFERENCES Tasks (id);
